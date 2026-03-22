@@ -709,9 +709,12 @@ way["tourism"="picnic_site"](around:'+r+','+lat+','+lng+');\
 node["leisure"="firepit"](around:'+r+','+lat+','+lng+');\
 way["leisure"="firepit"](around:'+r+','+lat+','+lng+');\
 node["tourism"="wilderness_hut"](around:'+r+','+lat+','+lng+');\
-);out center tags 250;';ait overpassQuery(q);
+);out center tags 250;';
+
+    try{
+      var data=await overpassQuery(q);
       clearTimeout(stepTimer); clearTimeout(stepTimer2);
-      setStep(4); // all done
+      setStep(4);
       processResults(data.elements||[],lat,lng);
     }catch(e){
       clearTimeout(stepTimer); clearTimeout(stepTimer2);
