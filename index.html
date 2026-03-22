@@ -684,20 +684,33 @@ window.addEventListener('load', function(){
     },4500);
 
     var r=radiusKm*1000;
-    var q='[out:json][timeout:35];(\
+    var q='[out:json][timeout:40];(\
 node["amenity"="parking"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
 way["amenity"="parking"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
+node["parking"="surface"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
 way["parking"="surface"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
-way["highway"="track"]["tracktype"~"grade1|grade2"]["access"!="private"]["access"!="no"]["motor_vehicle"!="no"](around:'+r+','+lat+','+lng+');\
-way["highway"="unclassified"]["surface"~"gravel|dirt|unpaved|compacted"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
-way["highway"="service"]["surface"~"gravel|dirt|unpaved"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
+node["parking"="yes"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
+way["parking"="yes"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
+node["parking"="street_side"](around:'+r+','+lat+','+lng+');\
+way["parking"="street_side"](around:'+r+','+lat+','+lng+');\
+node["amenity"="parking_entrance"]["access"!="private"](around:'+r+','+lat+','+lng+');\
+node["highway"="track"]["access"!="private"]["access"!="no"]["motor_vehicle"!="no"](around:'+r+','+lat+','+lng+');\
+node["highway"="rest_area"](around:'+r+','+lat+','+lng+');\
+way["highway"="rest_area"](around:'+r+','+lat+','+lng+');\
 way["landuse"="quarry"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
 way["landuse"="forest"]["access"="yes"](around:'+r+','+lat+','+lng+');\
 way["landuse"="forest"]["motor_vehicle"="yes"](around:'+r+','+lat+','+lng+');\
 way["natural"="wood"]["access"="yes"](around:'+r+','+lat+','+lng+');\
 node["natural"="clearing"](around:'+r+','+lat+','+lng+');\
 way["natural"="clearing"](around:'+r+','+lat+','+lng+');\
-);out center tags 150;';
+node["tourism"="camp_site"]["access"!="private"](around:'+r+','+lat+','+lng+');\
+way["tourism"="camp_site"]["access"!="private"](around:'+r+','+lat+','+lng+');\
+node["tourism"="picnic_site"](around:'+r+','+lat+','+lng+');\
+way["tourism"="picnic_site"](around:'+r+','+lat+','+lng+');\
+node["leisure"="firepit"](around:'+r+','+lat+','+lng+');\
+way["leisure"="firepit"](around:'+r+','+lat+','+lng+');\
+node["tourism"="wilderness_hut"](around:'+r+','+lat+','+lng+');\
+);out center tags 250;';
 
     try{
       var data=await overpassQuery(q);
@@ -765,11 +778,7 @@ way["natural"="clearing"](around:'+r+','+lat+','+lng+');\
         return {status:'green',label:'🟢 Erreichbar',reason:'Befestigter Weg ('+surf+')'};
       return {status:'orange',label:'🟠 Unsicher',reason:'Forststrasse – Güte unbekannt'};
     }
-    if(hw==='unclassified'||hw==='service'){
-      if(surf.match(/gravel|compacted|paved|asphalt/)) return {status:'green', label:'🟢 Erreichbar',reason:'Befestigte Kiesstrasse'};
-      if(surf.match(/dirt|unpaved/))                   return {status:'orange',label:'🟠 Unsicher',  reason:'Unbefestigt – saisonabhängig'};
-      return {status:'orange',label:'🟠 Unsicher',reason:'Strasse – Zustand unbekannt'};
-    }
+
     // Rest area – always accessible by car
     if(hw==='rest_area'){
       return {status:'green',label:'🟢 Erreichbar',reason:'Offizieller Rastplatz'};
@@ -834,14 +843,11 @@ way["natural"="clearing"](around:'+r+','+lat+','+lng+');\
         label=tags.name||'Rastplatz';
         sublabel='Rastplatz'+(tags.surface?' · '+tags.surface:'');
       }else if(tags.highway==='track'){
+        // Only nodes reach here (ways excluded from query) = explicit access points
         type='gravel';iconKey='track';typeHint='track';
-        label=tags.name||'Forststrasse / Feldweg';
+        label=tags.name||'Forstweg-Zugang';
         var p=[]; if(tags.tracktype)p.push('Güte '+tags.tracktype); if(tags.surface)p.push(tags.surface);
-        sublabel=p.join(' · ')||'Unbefestigter Weg';
-      }else if(tags.highway&&['unclassified','service'].indexOf(tags.highway)!==-1){
-        type='gravel';iconKey='track';typeHint='track';
-        label=tags.name||'Kiesstrasse';
-        sublabel=tags.surface||'Befestigter Weg';
+        sublabel=p.join(' · ')||'Zugangspoint Forststrasse';
       }else if(tags.landuse==='quarry'){
         type='gravel';iconKey='gravel';typeHint='quarry';
         label=tags.name||'Kiesgrube';sublabel='Kiesgelände';
