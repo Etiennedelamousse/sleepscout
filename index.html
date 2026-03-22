@@ -278,6 +278,56 @@
   }
   .map-chip-green{background:rgba(240,253,244,0.95);color:#15803d;border-color:rgba(22,163,74,0.3);}
   .map-chip-orange{background:rgba(255,237,213,0.95);color:#c2410c;border-color:rgba(234,88,12,0.3);}
+
+  /* ── FULLSCREEN BUTTON ── */
+  .btn-fullscreen{
+    position:absolute;top:12px;right:12px;z-index:600;
+    width:36px;height:36px;border-radius:9px;
+    background:var(--surface);border:1.5px solid var(--border);
+    box-shadow:var(--shadow-md);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--text2);transition:all 0.15s;
+  }
+  .btn-fullscreen:hover{background:var(--surface2);}
+  .btn-fullscreen svg{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none;}
+  body.is-fullscreen header,
+  body.is-fullscreen .controls,
+  body.is-fullscreen .results-panel,
+  body.is-fullscreen .status-bar{display:none!important;}
+  body.is-fullscreen .app{height:100vh;}
+  body.is-fullscreen .content{grid-template-rows:1fr;}
+  body.is-fullscreen #map{min-height:100vh;}
+  body.is-fullscreen .pin-hint{bottom:20px;}
+
+  /* ── DARK MODE ── */
+  @media(prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1117;--surface:#1a1d26;--surface2:#232736;
+      --border:#2e3345;--border2:#3a4058;
+      --accent:#22c55e;--accent-light:rgba(34,197,94,0.15);--accent2:#60a5fa;
+      --text:#f1f3f9;--text2:#c4c9d9;--muted:#8891a8;--muted2:#5c6478;
+      --green:#22c55e;--orange:#fb923c;--red:#f87171;
+      --shadow:0 1px 3px rgba(0,0,0,0.35),0 1px 2px rgba(0,0,0,0.2);
+      --shadow-md:0 4px 16px rgba(0,0,0,0.4),0 2px 6px rgba(0,0,0,0.25);
+    }
+    body{color-scheme:dark;}
+    input[type="range"]::-webkit-slider-thumb{background:var(--surface2);}
+    .style-btn:hover:not(.active){background:rgba(255,255,255,0.06);}
+    .chip:hover:not(.active){background:var(--surface2);border-color:var(--border2);color:var(--text2);}
+    .result-card.active{background:rgba(96,165,250,0.08);border-color:var(--accent2);}
+    .map-overlay{background:rgba(15,17,23,0.5);}
+    .pin-hint{background:rgba(26,29,38,0.92);color:var(--text2);border-color:var(--border);}
+    .map-chip-green{background:rgba(15,35,20,0.93);color:#4ade80;border-color:rgba(34,197,94,0.4);}
+    .map-chip-orange{background:rgba(40,18,8,0.93);color:#fb923c;border-color:rgba(251,146,60,0.4);}
+    .access-tag.green{background:rgba(34,197,94,0.12);color:#4ade80;}
+    .access-tag.orange{background:rgba(251,146,60,0.12);color:#fb923c;}
+    .tag-parking,.tag-forest{background:rgba(34,197,94,0.1);color:#4ade80;}
+    .tag-gravel{background:rgba(167,139,250,0.1);color:#a78bfa;}
+    .leaflet-control-zoom a{background:var(--surface)!important;color:var(--text)!important;border-color:var(--border)!important;}
+    .leaflet-popup-content-wrapper{background:var(--surface)!important;color:var(--text)!important;border-color:var(--border)!important;}
+    .leaflet-popup-tip{background:var(--surface)!important;}
+    .sort-select{color-scheme:dark;}
+  }
 </style>
 </head>
 <body>
@@ -325,6 +375,10 @@
     <div id="map"></div>
     <!-- always-visible pin hint -->
     <div class="pin-hint">📌 Klick / Touch auf Karte = Suche starten</div>
+    <!-- fullscreen toggle -->
+    <button class="btn-fullscreen" id="fullscreenBtn" title="Vollbild">
+      <svg id="fsIcon" viewBox="0 0 24 24"><path id="fsExpand" d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+    </button>
     <!-- loading overlay on map -->
     <div id="mapOverlay" class="map-overlay" style="display:none;">
       <div class="map-overlay-card">
@@ -815,6 +869,20 @@ way["natural"="clearing"](around:'+r+','+lat+','+lng+');\
       }
     });
   }
+  // ── FULLSCREEN ────────────────────────────────────────────────────────────
+  var fsBtn = document.getElementById('fullscreenBtn');
+  var fsExpand = document.getElementById('fsExpand');
+  var fsCollapse = '<path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>';
+  var fsExpandPath = fsExpand ? fsExpand.getAttribute('d') : '';
+
+  fsBtn.addEventListener('click', function(){
+    var isFs = document.body.classList.toggle('is-fullscreen');
+    document.getElementById('fsIcon').innerHTML = isFs
+      ? fsCollapse
+      : '<path d="' + fsExpandPath + '"/>';
+    setTimeout(function(){ map.invalidateSize(); }, 50);
+  });
+
   function haversine(lat1,lon1,lat2,lon2){
     var R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;
     var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
