@@ -399,8 +399,8 @@
   <div class="logo">Sleep<span>Scout</span> <span class="badge">BETA</span></div>
   <div class="radius-control">
     <label>Radius</label>
-    <input type="range" id="radiusSlider" min="1" max="50" value="10" step="1"/>
-    <span class="radius-val" id="radiusVal">10 km</span>
+    <input type="range" id="radiusSlider" min="1" max="50" value="5" step="1"/>
+    <span class="radius-val" id="radiusVal">5 km</span>
   </div>
 </header>
 
@@ -410,19 +410,19 @@
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--muted2);flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input type="text" id="searchInput" placeholder="Ort, Adresse oder Koordinaten (lat, lng)..."/>
     </div>
+    <button class="btn btn-primary" id="searchBtn">Suchen</button>
     <button class="btn btn-secondary" id="locBtn">
       <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
       Standort
     </button>
-    <button class="btn btn-primary" id="searchBtn">Suchen</button>
 
     <div class="divider"></div>
 
     <div class="map-style-group">
-      <button class="style-btn" data-style="dark">🌑 Dark</button>
+      <button class="style-btn active" data-style="satellite">🛰 Satellit</button>
       <button class="style-btn" data-style="osm">🗺 OSM</button>
       <button class="style-btn" data-style="topo">⛰ Topo</button>
-      <button class="style-btn active" data-style="satellite">🛰 Satellit</button>
+      <button class="style-btn" data-style="dark">🌑 Dark</button>
     </div>
 
     <div class="divider"></div>
@@ -525,7 +525,7 @@ window.addEventListener('load', function(){
   });
 
   // ── RADIUS ───────────────────────────────────────────────────────────────────
-  var radiusKm=10;
+  var radiusKm=5;
   var slider=document.getElementById('radiusSlider');
   var radiusValEl=document.getElementById('radiusVal');
 
@@ -619,8 +619,14 @@ window.addEventListener('load', function(){
   document.querySelectorAll('.chip').forEach(function(chip){
     chip.onclick=function(){
       var t=this.dataset.type;
-      this.classList.toggle('active');
-      if(activeFilters.has(t))activeFilters.delete(t);else activeFilters.add(t);
+      // Derive from Set – never let visual and data get out of sync
+      if(activeFilters.has(t)){
+        activeFilters.delete(t);
+        this.classList.remove('active');
+      }else{
+        activeFilters.add(t);
+        this.classList.add('active');
+      }
       if(allResults.length)renderResults();
     };
   });
@@ -805,7 +811,7 @@ way["natural"="clearing"](around:'+r+','+lat+','+lng+');\
   }
 
   // ── RENDER ───────────────────────────────────────────────────────────────────
-  var typeEmoji={parking:'🅿️',gravel:'🌾',track:'🌾',forest:'🌲',clearing:'🌿'};
+  var typeEmoji={parking:'🅿️',gravel:'💰',track:'💰',forest:'🌲',clearing:'🌿'};
   var colorHex={green:'#16a34a',orange:'#ea580c'};
   var chipCls={green:'map-chip map-chip-green',orange:'map-chip map-chip-orange'};
 
