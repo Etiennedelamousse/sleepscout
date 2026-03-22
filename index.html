@@ -262,9 +262,11 @@
 
   .result-dist{font-size:0.68rem;font-weight:600;padding:2px 8px;border-radius:20px;flex-shrink:0;}
   .tag-parking{background:#f0fdf4;color:#15803d;}
-  .tag-gravel{background:#f5f3ff;color:#7c3aed;}
-  .tag-forest{background:#f0fdf4;color:#16a34a;}
+  .tag-gravel{background:#f0fdf4;color:#15803d;}
+  .tag-forest{background:#f0fdf4;color:#15803d;}
+  .tag-wild{background:#f0fdf4;color:#15803d;}
   .tag-camp{background:#fef9c3;color:#854d0e;}
+  .tag-camping{background:#fef9c3;color:#854d0e;}
 
   /* ── MAP LOADING OVERLAY ── */
   .map-overlay{
@@ -385,9 +387,8 @@
     .map-chip-orange{background:rgba(40,18,8,0.93);color:#fb923c;border-color:rgba(251,146,60,0.4);}
     .access-tag.green{background:rgba(34,197,94,0.12);color:#4ade80;}
     .access-tag.orange{background:rgba(251,146,60,0.12);color:#fb923c;}
-    .tag-parking,.tag-forest{background:rgba(34,197,94,0.1);color:#4ade80;}
-    .tag-camp{background:rgba(234,179,8,0.12);color:#ca8a04;}
-    .tag-gravel{background:rgba(167,139,250,0.1);color:#a78bfa;}
+    .tag-parking,.tag-forest,.tag-wild,.tag-gravel{background:rgba(34,197,94,0.1);color:#4ade80;}
+    .tag-camp,.tag-camping{background:rgba(234,179,8,0.12);color:#ca8a04;}
     .leaflet-control-zoom a{background:var(--surface)!important;color:var(--text)!important;border-color:var(--border)!important;}
     .leaflet-popup-content-wrapper{background:var(--surface)!important;color:var(--text)!important;border-color:var(--border)!important;}
     .leaflet-popup-tip{background:var(--surface)!important;}
@@ -427,9 +428,8 @@
 
     <div class="filter-chips">
       <div class="chip active" data-type="parking"><span class="chip-dot"></span>Parkplätze</div>
-      <div class="chip" data-type="gravel"><span class="chip-dot"></span>Kiesplätze</div>
-      <div class="chip" data-type="forest"><span class="chip-dot"></span>Waldplätze</div>
-      <div class="chip" data-type="camp"><span class="chip-dot"></span>Camp</div>
+      <div class="chip" data-type="wild"><span class="chip-dot"></span>🌳 Natur & Kies</div>
+      <div class="chip" data-type="camping"><span class="chip-dot"></span>Campingplätze</div>
     </div>
   </div>
 
@@ -694,10 +694,15 @@ way["parking"="yes"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','
 node["parking"="street_side"](around:'+r+','+lat+','+lng+');\
 way["parking"="street_side"](around:'+r+','+lat+','+lng+');\
 node["amenity"="parking_entrance"]["access"!="private"](around:'+r+','+lat+','+lng+');\
-node["highway"="track"]["access"!="private"]["access"!="no"]["motor_vehicle"!="no"](around:'+r+','+lat+','+lng+');\
+way["highway"="track"]["tracktype"~"grade1|grade2"]["access"!="private"]["access"!="no"]["motor_vehicle"!="no"](around:'+r+','+lat+','+lng+');\
+way["highway"="track"]["surface"~"gravel|compacted|fine_gravel"]["access"!="private"]["access"!="no"]["motor_vehicle"!="no"](around:'+r+','+lat+','+lng+');\
+way["highway"="unclassified"]["surface"~"gravel|compacted|fine_gravel"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
+way["highway"="service"]["surface"~"gravel|compacted"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
 node["highway"="rest_area"](around:'+r+','+lat+','+lng+');\
 way["highway"="rest_area"](around:'+r+','+lat+','+lng+');\
 way["landuse"="quarry"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
+node["amenity"="parking"]["surface"~"gravel|unpaved"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
+way["amenity"="parking"]["surface"~"gravel|unpaved"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
 way["landuse"="forest"]["access"="yes"](around:'+r+','+lat+','+lng+');\
 way["landuse"="forest"]["motor_vehicle"="yes"](around:'+r+','+lat+','+lng+');\
 way["natural"="wood"]["access"="yes"](around:'+r+','+lat+','+lng+');\
@@ -779,6 +784,15 @@ node["tourism"="wilderness_hut"](around:'+r+','+lat+','+lng+');\
       return {status:'orange',label:'🟠 Unsicher',reason:'Forststrasse – Güte unbekannt'};
     }
 
+    // Gravel surface parking
+    if(tags.amenity==='parking'&&tags.surface&&/gravel|unpaved/.test(tags.surface)){
+      return {status:'green',label:'🟢 Erreichbar',reason:'Kiesuntergrund-Parkplatz'};
+    }
+    // Gravel roads (unclassified/service with gravel surface)
+    if(hw==='unclassified'||hw==='service'){
+      if(surf.match(/gravel|compacted|fine_gravel/)) return {status:'green', label:'🟢 Erreichbar',reason:'Befestigte Kiesstrasse'};
+      return {status:'orange',label:'🟠 Unsicher',reason:'Strasse – Zustand unklar'};
+    }
     // Rest area – always accessible by car
     if(hw==='rest_area'){
       return {status:'green',label:'🟢 Erreichbar',reason:'Offizieller Rastplatz'};
@@ -801,7 +815,7 @@ node["tourism"="wilderness_hut"](around:'+r+','+lat+','+lng+');\
     return {status:'orange',label:'🟠 Unsicher',reason:'Zugang nicht eindeutig'};
   }
 
-  var typePrio={parking:1,gravel:2,forest:3,camp:2};
+  var typePrio={parking:1,wild:2,camping:3};
 
   // ── PROCESS ──────────────────────────────────────────────────────────────────
   function processResults(elements,clat,clng){
@@ -839,40 +853,44 @@ node["tourism"="wilderness_hut"](around:'+r+','+lat+','+lng+');\
         var parts=[capStr,feeStr,parkingSubtype].filter(Boolean);
         sublabel=parts.join(' · ')||(tags.surface||'Öffentlicher Parkplatz');
       }else if(tags.highway==='rest_area'){
-        type='gravel';iconKey='rest_area';typeHint='rest_area';
+        type='wild';iconKey='rest_area';typeHint='rest_area';
         label=tags.name||'Rastplatz';
         sublabel='Rastplatz'+(tags.surface?' · '+tags.surface:'');
       }else if(tags.highway==='track'){
-        // Only nodes reach here (ways excluded from query) = explicit access points
-        type='gravel';iconKey='track';typeHint='track';
-        label=tags.name||'Forstweg-Zugang';
+        type='wild';iconKey='track';typeHint='track';
+        var isGravel=tags.surface&&/gravel|compacted|fine_gravel/.test(tags.surface);
+        label=tags.name||(isGravel?'Kiesweg / Forststrasse':'Forststrasse');
         var p=[]; if(tags.tracktype)p.push('Güte '+tags.tracktype); if(tags.surface)p.push(tags.surface);
-        sublabel=p.join(' · ')||'Zugangspoint Forststrasse';
+        sublabel=p.join(' · ')||'Forststrasse';
+      }else if(tags.highway&&['unclassified','service'].indexOf(tags.highway)!==-1){
+        type='wild';iconKey='gravel';typeHint='gravel';
+        label=tags.name||'Kiesstrasse';
+        sublabel=tags.surface||'Befestigter Kiesweg';
       }else if(tags.landuse==='quarry'){
-        type='gravel';iconKey='gravel';typeHint='quarry';
+        type='wild';iconKey='gravel';typeHint='quarry';
         label=tags.name||'Kiesgrube';sublabel='Kiesgelände';
       }else if(tags.landuse==='forest'||tags.natural==='wood'){
-        type='forest';iconKey='forest';typeHint='forest';
+        type='wild';iconKey='forest';typeHint='forest';
         label=tags.name||'Waldabschnitt';sublabel=tags.natural==='wood'?'Naturwald':'Bewirtschafteter Wald';
       }else if(tags.natural==='clearing'){
-        type='forest';iconKey='clearing';typeHint='clearing';
+        type='wild';iconKey='clearing';typeHint='clearing';
         label=tags.name||'Waldlichtung';sublabel='Lichtung';
       }else if(tags.tourism==='camp_site'){
-        type='camp';iconKey='camp';typeHint='camp';
+        type='camping';iconKey='camp';typeHint='camp';
         label=tags.name||'Campingplatz';
         var capC=tags.capacity?tags.capacity+' Plätze':'';
         var feeC=tags.fee==='yes'?'kostenpflichtig':(tags.fee==='no'?'kostenlos':'');
         sublabel=[capC,feeC,'Campingplatz'].filter(Boolean).join(' · ');
       }else if(tags.tourism==='picnic_site'){
-        type='camp';iconKey='picnic';typeHint='camp';
+        type='camping';iconKey='picnic';typeHint='camp';
         label=tags.name||'Picknickplatz';
         sublabel='Picknickplatz'+(tags.capacity?' · '+tags.capacity+' Plätze':'');
       }else if(tags.leisure==='firepit'){
-        type='camp';iconKey='firepit';typeHint='camp';
+        type='camping';iconKey='firepit';typeHint='camp';
         label=tags.name||'Feuerstelle';
         sublabel='Feuerstelle'+(tags.fee==='yes'?' · kostenpflichtig':'');
       }else if(tags.tourism==='wilderness_hut'){
-        type='camp';iconKey='hut';typeHint='camp';
+        type='camping';iconKey='hut';typeHint='camp';
         label=tags.name||'Waldhütte';
         sublabel='Waldhütte / Unterstand';
       }else{return;}
@@ -889,7 +907,7 @@ node["tourism"="wilderness_hut"](around:'+r+','+lat+','+lng+');\
   }
 
   // ── RENDER ───────────────────────────────────────────────────────────────────
-  var typeEmoji={parking:'🅿️',gravel:'💰',track:'💰',rest_area:'🛑',forest:'🌲',clearing:'🌿',camp:'⛺',picnic:'🧺',firepit:'🔥',hut:'🛖'};
+  var typeEmoji={parking:'🅿️',wild:'🌳',track:'🌳',rest_area:'🌳',gravel:'🌳',forest:'🌳',clearing:'🌳',camp:'⛺',camping:'⛺',picnic:'🧺',firepit:'🔥',hut:'🛖'};
   var colorHex={green:'#16a34a',orange:'#ea580c'};
   var chipCls={green:'map-chip map-chip-green',orange:'map-chip map-chip-orange'};
 
