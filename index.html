@@ -97,7 +97,7 @@
     transition:all 0.15s;white-space:nowrap;
   }
   .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);}
-  .btn-primary:hover{background:#15803d;border-color:#15803d;box-shadow:var(--shadow-md);}
+  .btn-primary:hover{background:#14803a;border-color:#14803a;box-shadow:var(--shadow-md);}
   .btn-primary.loading{opacity:0.65;pointer-events:none;}
   .btn-secondary{background:var(--surface);border-color:var(--border2);color:var(--text2);}
   .btn-secondary:hover{background:var(--surface2);border-color:var(--border2);box-shadow:var(--shadow);}
@@ -257,14 +257,14 @@
   .result-meta{display:flex;align-items:center;gap:6px;}
   .result-sub{font-size:0.62rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px;}
   .access-tag{font-size:0.6rem;padding:1px 6px;border-radius:20px;white-space:nowrap;flex-shrink:0;font-weight:600;}
-  .access-tag.green{background:#dcfce7;color:#15803d;}
+  .access-tag.green{background:#dcfce7;color:var(--accent);}
   .access-tag.orange{background:#ffedd5;color:#c2410c;}
 
   .result-dist{font-size:0.68rem;font-weight:600;padding:2px 8px;border-radius:20px;flex-shrink:0;}
-  .tag-parking{background:#f0fdf4;color:#15803d;}
-  .tag-gravel{background:#f0fdf4;color:#15803d;}
-  .tag-forest{background:#f0fdf4;color:#15803d;}
-  .tag-wild{background:#f0fdf4;color:#15803d;}
+  .tag-parking{background:#f0fdf4;color:var(--accent);}
+  .tag-gravel{background:#f0fdf4;color:var(--accent);}
+  .tag-forest{background:#f0fdf4;color:var(--accent);}
+  .tag-wild{background:#f0fdf4;color:var(--accent);}
   .tag-camp{background:#fef9c3;color:#854d0e;}
   .tag-camping{background:#fef9c3;color:#854d0e;}
 
@@ -273,8 +273,8 @@
     position:absolute;top:0;left:0;right:0;bottom:0;
     z-index:800;
     display:flex;align-items:center;justify-content:center;
-    background:rgba(255,255,255,0.45);
-    backdrop-filter:blur(3px);
+    background:rgba(255,255,255,0.35);
+    backdrop-filter:blur(1.5px);
     pointer-events:none;
   }
   .map-overlay-card{
@@ -342,7 +342,7 @@
     border:1.5px solid transparent;
     box-shadow:0 1px 4px rgba(0,0,0,0.15);
   }
-  .map-chip-green{background:rgba(240,253,244,0.95);color:#15803d;border-color:rgba(22,163,74,0.3);}
+  .map-chip-green{background:rgba(240,253,244,0.95);color:var(--accent);border-color:rgba(22,163,74,0.3);}
   .map-chip-orange{background:rgba(255,237,213,0.95);color:#c2410c;border-color:rgba(234,88,12,0.3);}
 
 
@@ -380,7 +380,7 @@
     background:var(--accent);color:#fff;font-family:'Inter',sans-serif;
     font-weight:700;font-size:0.82rem;transition:all 0.15s;
   }
-  .modal-btn:hover{background:#15803d;box-shadow:var(--shadow-md);}
+  .modal-btn:hover{background:#14803a;box-shadow:var(--shadow-md);}
 
   /* ── FULLSCREEN BUTTON ── */
   .btn-fullscreen{
@@ -420,11 +420,11 @@
     .result-card.active{background:rgba(96,165,250,0.08);border-color:var(--accent2);}
     .map-overlay{background:rgba(15,17,23,0.5);}
     .pin-hint{background:rgba(26,29,38,0.92);color:var(--text2);border-color:var(--border);}
-    .map-chip-green{background:rgba(15,35,20,0.93);color:#4ade80;border-color:rgba(34,197,94,0.4);}
+    .map-chip-green{background:rgba(15,35,20,0.93);color:var(--accent);border-color:rgba(34,197,94,0.4);}
     .map-chip-orange{background:rgba(40,18,8,0.93);color:#fb923c;border-color:rgba(251,146,60,0.4);}
     .access-tag.green{background:rgba(34,197,94,0.12);color:#4ade80;}
     .access-tag.orange{background:rgba(251,146,60,0.12);color:#fb923c;}
-    .tag-parking,.tag-forest,.tag-wild,.tag-gravel{background:rgba(34,197,94,0.1);color:#4ade80;}
+    .tag-parking,.tag-forest,.tag-wild,.tag-gravel{background:rgba(34,197,94,0.1);color:var(--accent);}
     .tag-camp,.tag-camping{background:rgba(234,179,8,0.12);color:#ca8a04;}
     .leaflet-control-zoom a{background:var(--surface)!important;color:var(--text)!important;border-color:var(--border)!important;}
     .leaflet-popup-content-wrapper{background:var(--surface)!important;color:var(--text)!important;border-color:var(--border)!important;}
@@ -486,8 +486,8 @@
         <div class="map-overlay-sub" id="overlaySub">Overpass-API wird abgefragt</div>
         <div class="map-overlay-steps">
           <div class="map-step" id="step1"><div class="step-dot pending"></div><span>Parkplätze</span></div>
-          <div class="map-step" id="step2"><div class="step-dot pending"></div><span>Kiesplätze</span></div>
-          <div class="map-step" id="step3"><div class="step-dot pending"></div><span>Waldplätze</span></div>
+          <div class="map-step" id="step2"><div class="step-dot pending"></div><span>Natur &amp; Kies</span></div>
+          <div class="map-step" id="step3"><div class="step-dot pending"></div><span>Camping &amp; Picknick</span></div>
         </div>
       </div>
     </div>
@@ -518,7 +518,7 @@
   <div class="sheet-header">
     <div class="sheet-title">Ergebnisse</div>
     <div class="sheet-legend">
-      <div class="legend-item"><div class="leg-dot" style="background:#16a34a"></div>Erreichbar</div>
+      <div class="legend-item"><div class="leg-dot" style="background:var(--accent)"></div>Erreichbar</div>
       <div class="legend-item"><div class="leg-dot" style="background:#ea580c"></div>Unsicher</div>
     </div>
     <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
@@ -561,7 +561,7 @@
     <div class="modal-section">
       <h3>Farbcode</h3>
       <ul>
-        <li><strong style="color:#16a34a">🟢 Grün</strong> – Zugang per Auto bestätigt</li>
+        <li><strong style="color:var(--accent)">🟢 Grün</strong> – Zugang per Auto bestätigt</li>
         <li><strong style="color:#ea580c">🟠 Orange</strong> – Kein explizites Verbot, Vor-Ort-Prüfung empfohlen</li>
       </ul>
     </div>
@@ -633,8 +633,8 @@ window.addEventListener('load', function(){
     } else if(!radiusCircle){
       // No center yet – draw a preview from map center
       if(!previewCircle) previewCircle=L.circle(map.getCenter(),{
-        radius:radiusKm*1000,color:'#9ca3af',weight:2,opacity:0.5,
-        fillOpacity:0.04,dashArray:'6 5'
+        radius:radiusKm*1000,color:'#ffffff',weight:3,opacity:1,
+        fillOpacity:0.04,dashArray:'12 8'
       }).addTo(map);
       else previewCircle.setLatLng(map.getCenter()).setRadius(radiusKm*1000);
     }
@@ -648,31 +648,25 @@ window.addEventListener('load', function(){
 
   // ── CIRCLE ───────────────────────────────────────────────────────────────────
   function updateCircleStyle(){
-    // High-contrast colour per map type
-    var colMap={
-      satellite:'#facc15', // bright yellow on satellite
-      dark:'#c8f050',      // lime on dark
-      osm:'#2563eb',       // strong blue on OSM
-      topo:'#dc2626'       // red on topo
-    };
-    var col=colMap[currentStyle]||'#facc15';
+    var col='#2563eb';
     if(radiusCircle) radiusCircle.setStyle({
-      color:col, weight:4, opacity:1,
-      fillColor:col, fillOpacity:0.08,
-      dashArray:'10 6'
+      color:col, weight:3, opacity:1,
+      fillColor:col, fillOpacity:0.06,
+      dashArray:'12 8'
     });
     if(pulseCircle) pulseCircle.setStyle({
-      color:col, weight:8, opacity:0.25, fillOpacity:0
+      color:col, weight:3, opacity:0.2, fillOpacity:0
     });
     if(previewCircle) previewCircle.setStyle({
-      color:col, weight:3, opacity:0.8, fillOpacity:0.05
+      color:'#ffffff', weight:3, opacity:1, fillOpacity:0.04,
+      dashArray:'12 8'
     });
   }
   function drawRadius(lat,lng){
     if(radiusCircle)map.removeLayer(radiusCircle);
     if(pulseCircle)map.removeLayer(pulseCircle);
-    radiusCircle=L.circle([lat,lng],{radius:radiusKm*1000,weight:4,opacity:1,fillOpacity:0.08,dashArray:'10 6'}).addTo(map);
-    pulseCircle=L.circle([lat,lng],{radius:radiusKm*1000,weight:8,opacity:0.25,fillOpacity:0}).addTo(map);
+    radiusCircle=L.circle([lat,lng],{radius:radiusKm*1000,weight:3,opacity:1,fillOpacity:0.06,dashArray:'12 8'}).addTo(map);
+    pulseCircle=L.circle([lat,lng],{radius:radiusKm*1000,weight:3,opacity:0.2,fillOpacity:0}).addTo(map);
     updateCircleStyle();
   }
 
@@ -789,14 +783,14 @@ window.addEventListener('load', function(){
     // Animate steps while query runs
     setStep(1);
     document.getElementById('overlayTitle').textContent='Suche läuft…';
-    document.getElementById('overlaySub').textContent='Parkplätze werden abgefragt';
+    document.getElementById('overlaySub').textContent='Parkplätze';
     var stepTimer=setTimeout(function(){
       setStep(2);
-      document.getElementById('overlaySub').textContent='Kiesplätze & Strassen';
+      document.getElementById('overlaySub').textContent='Natur & Kies';
     },2000);
     var stepTimer2=setTimeout(function(){
       setStep(3);
-      document.getElementById('overlaySub').textContent='Waldabschnitte & Lichtungen';
+      document.getElementById('overlaySub').textContent='Camping & Picknick';
     },4500);
 
     var r=radiusKm*1000;
