@@ -611,7 +611,7 @@ window.addEventListener('load', function(){
       map.removeLayer(tileLayers[currentStyle]); tileLayers[s].addTo(map); currentStyle=s;
       document.querySelectorAll('.style-btn').forEach(function(b){b.classList.remove('active');});
       this.classList.add('active');
-      if(radiusCircle) updateCircleStyle();
+      updateCircleStyle();
     });
   });
 
@@ -628,52 +628,37 @@ window.addEventListener('load', function(){
     radiusKm=parseInt(this.value);
     radiusValEl.textContent=radiusKm+' km';
     updateSliderTrack();
-    // Always update real circles if they exist
-    if(radiusCircle)radiusCircle.setRadius(radiusKm*1000);
-    if(pulseCircle)pulseCircle.setRadius(radiusKm*1000);
-    // Preview circle always centred on current map view
-    var mapCtr=map.getCenter();
-    if(!previewCircle){
-      previewCircle=L.circle(mapCtr,{
-        radius:radiusKm*1000,color:'#ffffff',weight:3,opacity:1,
-        fillOpacity:0.04,dashArray:'12 8'
-      }).addTo(map);
-      updateCircleStyle();
+    if(radiusCircle){
+      // Move existing circle to map centre and resize
+      radiusCircle.setLatLng(map.getCenter()).setRadius(radiusKm*1000);
     } else {
-      previewCircle.setLatLng(mapCtr).setRadius(radiusKm*1000);
+      // No circle yet – create one at map centre
+      radiusCircle=L.circle(map.getCenter(),{
+        radius:radiusKm*1000,weight:3,opacity:1,
+        fillOpacity:0.06,dashArray:'12 8'
+      }).addTo(map);
       updateCircleStyle();
     }
   });
   updateSliderTrack();
 
   // ── STATE ────────────────────────────────────────────────────────────────────
-  var centerMarker=null, radiusCircle=null, pulseCircle=null, previewCircle=null;
+  var centerMarker=null, radiusCircle=null;
   var markers=[], tooltipLayers=[], allResults=[];
   var activeFilters=new Set(['parking']);
 
   // ── CIRCLE ───────────────────────────────────────────────────────────────────
   function updateCircleStyle(){
     var col=currentStyle==='satellite'?'#ffffff':'#111827';
-    var preCol=currentStyle==='satellite'?'#ffffff':'#111827';
     if(radiusCircle) radiusCircle.setStyle({
       color:col, weight:3, opacity:1,
       fillColor:col, fillOpacity:0.06,
       dashArray:'12 8'
     });
-    if(pulseCircle) pulseCircle.setStyle({
-      color:col, weight:3, opacity:0.2, fillOpacity:0
-    });
-    if(previewCircle) previewCircle.setStyle({
-      color:preCol, weight:3, opacity:1, fillOpacity:0.04,
-      dashArray:'12 8'
-    });
   }
   function drawRadius(lat,lng){
-    if(previewCircle){map.removeLayer(previewCircle);previewCircle=null;}
     if(radiusCircle)map.removeLayer(radiusCircle);
-    if(pulseCircle)map.removeLayer(pulseCircle);
     radiusCircle=L.circle([lat,lng],{radius:radiusKm*1000,weight:3,opacity:1,fillOpacity:0.06,dashArray:'12 8'}).addTo(map);
-    pulseCircle=L.circle([lat,lng],{radius:radiusKm*1000,weight:3,opacity:0.2,fillOpacity:0}).addTo(map);
     updateCircleStyle();
   }
 
@@ -777,7 +762,6 @@ window.addEventListener('load', function(){
   function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
 
   async function searchFromCoords(lat,lng){
-    if(previewCircle){map.removeLayer(previewCircle);previewCircle=null;}
     if(centerMarker)map.removeLayer(centerMarker);
     centerMarker=L.marker([lat,lng],{icon:makeCenterIcon()}).addTo(map).bindPopup('<b style="font-family:Inter,sans-serif">Dein Standort</b>');
     drawRadius(lat,lng);
@@ -1134,9 +1118,7 @@ node["tourism"="wilderness_hut"](around:'+r+','+lat+','+lng+');\
     // clear map
     clearMarkers();
     if(centerMarker){map.removeLayer(centerMarker); centerMarker=null;}
-    if(previewCircle){map.removeLayer(previewCircle);previewCircle=null;}
     if(radiusCircle){map.removeLayer(radiusCircle); radiusCircle=null;}
-    if(pulseCircle){map.removeLayer(pulseCircle); pulseCircle=null;}
     allResults=[];
 
     // reset input
