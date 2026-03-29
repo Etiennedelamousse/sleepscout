@@ -630,7 +630,10 @@ window.addEventListener('load', function(){
     updateSliderTrack();
     if(radiusCircle){
       // Move existing circle to map centre and resize
-      radiusCircle.setLatLng(map.getCenter()).setRadius(radiusKm*1000);
+      var ctr=map.getCenter();
+      radiusCircle.setLatLng(ctr).setRadius(radiusKm*1000);
+      // Update search field so next search uses new position
+      document.getElementById('searchInput').value=ctr.lat.toFixed(5)+', '+ctr.lng.toFixed(5);
     } else {
       // No circle yet – create one at map centre
       radiusCircle=L.circle(map.getCenter(),{
