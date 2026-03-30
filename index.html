@@ -792,29 +792,27 @@ window.addEventListener('load', function(){
     var q='[out:json][timeout:40];(\
 node["amenity"="parking"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
 way["amenity"="parking"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
-node["parking"="surface"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
-way["parking"="surface"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
-node["parking"="yes"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
-way["parking"="yes"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
-node["parking"="street_side"](around:'+r+','+lat+','+lng+');\
-way["parking"="street_side"](around:'+r+','+lat+','+lng+');\
+node["parking"~"lane|multi-storey|carport|rooftop|street_side|on_kerb|half_on_kerb|shoulder|surface|yes"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
+way["parking"~"lane|multi-storey|carport|rooftop|street_side|on_kerb|half_on_kerb|shoulder|surface|yes"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
 node["amenity"="parking_entrance"]["access"!="private"](around:'+r+','+lat+','+lng+');\
 way["highway"="track"]["tracktype"~"grade1|grade2"]["access"!="private"]["access"!="no"]["motor_vehicle"!="no"](around:'+r+','+lat+','+lng+');\
 node["highway"="rest_area"](around:'+r+','+lat+','+lng+');\
 way["highway"="rest_area"](around:'+r+','+lat+','+lng+');\
-node["amenity"="parking"]["surface"~"gravel|unpaved"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
-way["amenity"="parking"]["surface"~"gravel|unpaved"]["access"!="private"]["access"!="no"](around:'+r+','+lat+','+lng+');\
 way["landuse"="forest"]["access"="yes"](around:'+r+','+lat+','+lng+');\
 way["landuse"="forest"]["motor_vehicle"="yes"](around:'+r+','+lat+','+lng+');\
 way["natural"="wood"]["access"="yes"](around:'+r+','+lat+','+lng+');\
 node["tourism"="camp_site"]["access"!="private"](around:'+r+','+lat+','+lng+');\
 way["tourism"="camp_site"]["access"!="private"](around:'+r+','+lat+','+lng+');\
+node["amenity"="shelter"](around:'+r+','+lat+','+lng+');\
+way["amenity"="shelter"](around:'+r+','+lat+','+lng+');\
 node["tourism"="picnic_site"](around:'+r+','+lat+','+lng+');\
 way["tourism"="picnic_site"](around:'+r+','+lat+','+lng+');\
+node["leisure"="picnic_table"](around:'+r+','+lat+','+lng+');\
+node["amenity"="bbq"](around:'+r+','+lat+','+lng+');\
+node["tourism"="wilderness_hut"](around:'+r+','+lat+','+lng+');\
 node["leisure"="firepit"](around:'+r+','+lat+','+lng+');\
 way["leisure"="firepit"](around:'+r+','+lat+','+lng+');\
-node["tourism"="wilderness_hut"](around:'+r+','+lat+','+lng+');\
-);out center tags 250;';
+);out center tags 300;';
 
     try{
       var data=await overpassQuery(q);
@@ -839,23 +837,23 @@ node["tourism"="wilderness_hut"](around:'+r+','+lat+','+lng+');\
     if(blocked.indexOf(mv)!==-1) return null;
     if(blocked.indexOf(veh)!==-1)return null;
 
-    if(tags.amenity==='parking'||tags.amenity==='parking_space'){
+    // All parking variants → green
+    var PARKING_VALS2=['lane','multi-storey','carport','rooftop','street_side','on_kerb','half_on_kerb','shoulder','surface','yes','underground'];
+    if(tags.amenity==='parking'||tags.amenity==='parking_space'||tags.amenity==='parking_entrance'){
       var reason='Offizieller Parkplatz';
       if(tags.parking==='underground') reason='Tiefgarage';
       if(tags.parking==='multi-storey') reason='Parkhaus';
+      if(tags.amenity==='parking_entrance') reason='Parkhaus-Einfahrt';
       return {status:'green',label:'🟢 Erreichbar',reason:reason};
     }
-    if(tags.amenity==='parking_entrance'){
-      return {status:'green',label:'🟢 Erreichbar',reason:'Parkhaus-Einfahrt'};
-    }
-    if(tags.parking==='surface'){
-      return {status:'green',label:'🟢 Erreichbar',reason:'Oberflächenparkplatz'};
-    }
-    if(tags.parking==='street_side'){
-      return {status:'green',label:'🟢 Erreichbar',reason:'Strassenparkplatz'};
-    }
-    if(tags.parking==='yes'){
-      return {status:'green',label:'🟢 Erreichbar',reason:'Parkplatz'};
+    if(tags.parking&&PARKING_VALS2.indexOf(tags.parking)!==-1){
+      var subtypeLabel={
+        'lane':'Spurenparkplatz','multi-storey':'Parkhaus','carport':'Carport',
+        'rooftop':'Dachparkplatz','street_side':'Strassenparkplatz','on_kerb':'Bordstein-Parkplatz',
+        'half_on_kerb':'Halb-Bordstein-Parkplatz','shoulder':'Pannenstreifen',
+        'surface':'Oberflächenparkplatz','yes':'Parkplatz','underground':'Tiefgarage'
+      }[tags.parking]||'Parkplatz';
+      return {status:'green',label:'🟢 Erreichbar',reason:subtypeLabel};
     }
     if(tags.landuse==='forest'||tags.natural==='wood'){
       if(a==='yes'||a==='permissive'||mv==='yes'||mv==='permissive')
@@ -885,18 +883,17 @@ node["tourism"="wilderness_hut"](around:'+r+','+lat+','+lng+');\
     }
     // Camp / picnic / firepit / hut
     if(tags.tourism==='camp_site'){
-      if(a==='yes'||a==='permissive'||a===''||!a)
-        return {status:'green',label:'🟢 Erreichbar',reason:'Campingplatz'};
+      if(blocked.indexOf(a)===-1) return {status:'green',label:'🟢 Erreichbar',reason:'Campingplatz'};
       return {status:'orange',label:'🟠 Unsicher',reason:'Campingplatz – Zugang unklar'};
     }
-    if(tags.tourism==='picnic_site'){
-      return {status:'green',label:'🟢 Erreichbar',reason:'Picknickplatz – öffentlich zugänglich'};
+    if(tags.tourism==='picnic_site'||tags.leisure==='picnic_table'){
+      return {status:'green',label:'🟢 Erreichbar',reason:'Picknickplatz'};
     }
-    if(tags.leisure==='firepit'){
-      return {status:'green',label:'🟢 Erreichbar',reason:'Feuerstelle'};
+    if(tags.leisure==='firepit'||tags.amenity==='bbq'){
+      return {status:'green',label:'🟢 Erreichbar',reason:tags.amenity==='bbq'?'Grillstelle':'Feuerstelle'};
     }
-    if(tags.tourism==='wilderness_hut'){
-      return {status:'green',label:'🟢 Erreichbar',reason:'Waldhütte / Unterstand'};
+    if(tags.tourism==='wilderness_hut'||tags.amenity==='shelter'){
+      return {status:'green',label:'🟢 Erreichbar',reason:tags.amenity==='shelter'?'Unterstand / Schutzhütte':'Waldhütte'};
     }
     return {status:'orange',label:'🟠 Unsicher',reason:'Zugang nicht eindeutig'};
   }
@@ -918,20 +915,25 @@ node["tourism"="wilderness_hut"](around:'+r+','+lat+','+lng+');\
 
       var type,label,sublabel,iconKey,typeHint='';
 
-      // Derive a parking subtype label
-      var parkingSubtype = (function(){
-        var a=tags.amenity||'', p=tags.parking||'';
-        if(p==='street_side') return 'Strassenparkplatz';
-        if(p==='surface') return 'Oberflächenparkplatz';
-        if(a==='parking_entrance') return 'Parkhaus-Einfahrt';
+      // Parking subtype label
+      var PARKING_VALS=['lane','multi-storey','carport','rooftop','street_side','on_kerb','half_on_kerb','shoulder','surface','yes'];
+      var parkingSubtype=(function(){
+        var p=tags.parking||'';
+        var subtypeMap={
+          'lane':'Spurenparkplatz','multi-storey':'Parkhaus','carport':'Carport',
+          'rooftop':'Dachparkplatz','street_side':'Strassenparkplatz','on_kerb':'Bordstein-Parkplatz',
+          'half_on_kerb':'Halb-Bordstein','shoulder':'Pannenstreifen','surface':'Oberflächenparkplatz',
+          'yes':'Parkplatz'
+        };
+        if(tags.amenity==='parking_entrance') return 'Parkhaus-Einfahrt';
         if(tags.parking==='underground') return 'Tiefgarage';
-        if(tags.parking==='multi-storey') return 'Parkhaus';
-        return null;
+        return subtypeMap[p]||null;
       })();
+      var isParking=tags.amenity==='parking'||tags.amenity==='parking_space'
+        ||tags.amenity==='parking_entrance'
+        ||(tags.parking&&PARKING_VALS.indexOf(tags.parking)!==-1);
 
-      if(tags.amenity==='parking'||tags.amenity==='parking_space'||tags.amenity==='parking_entrance'
-        ||tags.parking==='surface'||tags.parking==='yes'||tags.parking==='street_side'
-){
+      if(isParking){
         type='parking';iconKey='parking';
         label=tags.name||(parkingSubtype||'Parkplatz');
         var capStr=tags.capacity?tags.capacity+' Stellplätze':'';
@@ -969,6 +971,18 @@ node["tourism"="wilderness_hut"](around:'+r+','+lat+','+lng+');\
         type='camping';iconKey='hut';typeHint='camp';
         label=tags.name||'Waldhütte';
         sublabel='Waldhütte / Unterstand';
+      }else if(tags.amenity==='shelter'){
+        type='camping';iconKey='hut';typeHint='camp';
+        label=tags.name||'Unterstand / Schutzhütte';
+        sublabel='Unterstand'+(tags.shelter_type?' · '+tags.shelter_type:'');
+      }else if(tags.leisure==='picnic_table'){
+        type='camping';iconKey='picnic';typeHint='camp';
+        label=tags.name||'Picknick-Tisch';
+        sublabel='Picknick-Tisch';
+      }else if(tags.amenity==='bbq'){
+        type='camping';iconKey='firepit';typeHint='camp';
+        label=tags.name||'Grillstelle';
+        sublabel='Grillstelle / BBQ';
       }else{return;}
 
       var access=accessRule(tags,typeHint);
