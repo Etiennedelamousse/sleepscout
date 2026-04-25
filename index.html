@@ -80,7 +80,18 @@
   body.is-fullscreen .sheet-trigger{bottom:20px;}
   body.is-fullscreen #feedbackBtn{bottom:68px;}
 
-  /* ── FEEDBACK MODAL ── */
+  /* ── HELP SHEET ── */
+  .help-sheet{position:fixed;bottom:0;left:0;right:0;z-index:2000;background:var(--surface);border-radius:20px 20px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,0.18);display:flex;flex-direction:column;max-height:85vh;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);}
+  .help-sheet.open{transform:translateY(0);}
+  .help-content{overflow-y:auto;flex:1;padding:16px 20px 28px;font-size:0.78rem;line-height:1.6;color:var(--text2);}
+  .help-content h1{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:4px;}
+  .help-content h2{font-size:0.82rem;font-weight:700;color:var(--text);margin:18px 0 6px;}
+  .help-content p{margin-bottom:8px;}
+  .help-content ul{padding-left:16px;margin-bottom:8px;display:flex;flex-direction:column;gap:3px;}
+  .help-content li::marker{color:var(--accent);}
+  .help-content strong{color:var(--text);font-weight:600;}
+  .help-content hr{border:none;border-top:1px solid var(--border);margin:14px 0;}
+  .help-tagline{font-size:0.72rem;color:var(--muted);margin-bottom:14px;}
   .feedback-backdrop{position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;}
   .feedback-card{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;box-shadow:var(--shadow-md);max-width:440px;width:100%;padding:24px 22px 20px;animation:overlayIn 0.25s ease;}
   .feedback-card h2{font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:4px;}
@@ -246,6 +257,9 @@
   <div class="content" style="position:relative;">
     <div id="map"></div>
     <div class="pin-hint">📌 Klick / Touch auf Karte = Suche starten</div>
+    <button class="btn-fullscreen" id="helpBtn" title="Anleitung" style="top:auto;bottom:12px;">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="2.5" stroke-linecap="round"/></svg>
+    </button>
     <button class="btn-fullscreen" id="fullscreenBtn" title="Vollbild">
       <svg id="fsIcon" viewBox="0 0 24 24"><path id="fsExpand" d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
     </button>
@@ -274,6 +288,69 @@
   <div class="status-bar">
     <span class="status-dot" id="statusDot"></span>
     <span id="statusMsg">Bereit – Klicke auf die Karte oder gib einen Ort ein.</span>
+  </div>
+</div>
+
+<div class="sheet-backdrop" id="helpBackdrop"></div>
+<div class="help-sheet" id="helpSheet">
+  <div style="padding:10px 14px 8px;border-bottom:1px solid var(--border);flex-shrink:0;">
+    <div style="width:36px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 8px;cursor:grab;" id="helpHandleBar"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-weight:700;font-size:0.82rem;color:var(--text);">Anleitung</div>
+      <button class="sheet-close" id="helpCloseBtn" style="position:static;width:26px;height:26px;font-size:0.85rem;">✕</button>
+    </div>
+  </div>
+  <div class="help-content">
+    <h1>SleepScout</h1>
+    <p class="help-tagline">Freie Übernachtungsplätze finden – powered by OpenStreetMap</p>
+
+    <h2>Einen Ort suchen</h2>
+    <p>Du hast drei Möglichkeiten:</p>
+    <ul>
+      <li><strong>Ort eingeben</strong> – Tippe einen Ortsnamen, eine Adresse oder Koordinaten (z. B. <code>46.95, 7.45</code>) ins Suchfeld und drücke <strong>«Suchen»</strong> oder Enter.</li>
+      <li><strong>Karte antippen</strong> – Tippe auf eine beliebige Stelle der Karte – die Suche startet automatisch.</li>
+      <li><strong>Standort</strong> – Drücke <strong>«Standort»</strong>, um deinen aktuellen GPS-Standort zu verwenden.</li>
+    </ul>
+
+    <h2>Suchradius</h2>
+    <p>Passe den Radius oben rechts zwischen <strong>1 km und 20 km</strong> an. Der weisse Kreis auf der Karte zeigt den Suchbereich.</p>
+
+    <h2>Ergebnisse</h2>
+    <p>Farbige Markierungen zeigen gefundene Standorte:</p>
+    <ul>
+      <li>🟢 <strong>Grün</strong> – Zugang per Auto bestätigt</li>
+      <li>🟠 <strong>Orange</strong> – Kein explizites Verbot, Vor-Ort-Prüfung empfohlen</li>
+    </ul>
+    <p>Tippe auf eine Markierung für Details. Über das Symbol im Detailfenster kannst du den Standort direkt in Google Maps oder Apple Maps öffnen.</p>
+
+    <h2>Ergebnisliste</h2>
+    <p>Der Button <strong>«Details»</strong> unten auf der Karte öffnet die vollständige Liste aller Treffer – sortierbar nach Priorität, Distanz oder Name. Tippe einen Eintrag an, um zur Markierung zu springen.</p>
+
+    <h2>Kategorien</h2>
+    <ul>
+      <li><strong>🅿️ Parkplätze</strong> – Öffentliche Parkplätze, Parkhäuser, Tiefgaragen, Rastplätze</li>
+      <li><strong>⛺ Camping & Picknick</strong> – Campingplätze, Picknickplätze, Feuerstellen, Waldhütten</li>
+      <li><strong>🌳 Natur & Kies</strong> – Forststrassen mit bestätigtem Fahrzeugzugang</li>
+    </ul>
+    <p>Aktiviere oder deaktiviere Kategorien per Tipp. Beim Start ist nur <strong>Parkplätze</strong> aktiv.</p>
+
+    <h2>Kartenansicht</h2>
+    <ul>
+      <li><strong>🛰 Satellit</strong> – Luftbild (Standard)</li>
+      <li><strong>🗺 OSM</strong> – OpenStreetMap</li>
+      <li><strong>🚴 Cycling</strong> – Radwegekarte</li>
+    </ul>
+
+    <h2>Weiteres</h2>
+    <ul>
+      <li><strong>Vollbild</strong> – Button oben rechts auf der Karte</li>
+      <li><strong>Zurücksetzen</strong> – Tippe auf <strong>«SleepScout»</strong> oben links</li>
+      <li><strong>ESC</strong> – Schliesst Detailfenster → Liste → bricht laufende Suche ab</li>
+      <li><strong>💬 Feedback</strong> – Button unten auf der Karte</li>
+    </ul>
+
+    <hr>
+    <p style="font-size:0.68rem;color:var(--muted);">⚠️ Die Daten stammen aus OpenStreetMap und können unvollständig oder veraltet sein. Prüfe vor Ort ob das Übernachten erlaubt ist. Die Nutzung erfolgt auf eigene Verantwortung.</p>
   </div>
 </div>
 
@@ -818,6 +895,23 @@ way["highway"="track"]["vehicle"~"yes|permissive|destination"](around:'+r+','+la
     map.flyTo([46.95,7.45],12,{duration:1.0});
   });
 
+  // ── HELP SHEET ───────────────────────────────────────────────────────────
+  var helpSheet=document.getElementById('helpSheet');
+  var helpBackdrop=document.getElementById('helpBackdrop');
+  function openHelp(){helpSheet.classList.add('open');helpBackdrop.classList.add('open');}
+  function closeHelp(){helpSheet.classList.remove('open');helpBackdrop.classList.remove('open');}
+  document.getElementById('helpBtn').addEventListener('click',openHelp);
+  document.getElementById('helpCloseBtn').addEventListener('click',closeHelp);
+  helpBackdrop.addEventListener('click',closeHelp);
+  // drag to close
+  var hY=0,hDrag=false,helpHandle=document.getElementById('helpHandleBar');
+  helpHandle.addEventListener('touchstart',function(e){hY=e.touches[0].clientY;hDrag=true;},{passive:true});
+  helpSheet.addEventListener('touchmove',function(e){if(!hDrag)return;var d=e.touches[0].clientY-hY;if(d>0)helpSheet.style.transform='translateY('+d+'px)';},{passive:true});
+  helpSheet.addEventListener('touchend',function(e){if(!hDrag)return;hDrag=false;helpSheet.style.transform='';if(e.changedTouches[0].clientY-hY>80)closeHelp();},{passive:true});
+  helpHandle.addEventListener('mousedown',function(e){hY=e.clientY;hDrag=true;});
+  document.addEventListener('mousemove',function(e){if(!hDrag)return;var d=e.clientY-hY;if(d>0)helpSheet.style.transform='translateY('+d+'px)';});
+  document.addEventListener('mouseup',function(e){if(!hDrag)return;hDrag=false;helpSheet.style.transform='';if(e.clientY-hY>80)closeHelp();});
+
   // ── BOTTOM SHEET ─────────────────────────────────────────────────────────
   var sheet=document.getElementById('bottomSheet');
   var backdrop=document.getElementById('sheetBackdrop');
@@ -853,6 +947,7 @@ way["highway"="track"]["vehicle"~"yes|permissive|destination"](around:'+r+','+la
   document.addEventListener('keydown',function(e){
     if(e.key!=='Escape')return;
     if(map._popup&&map._popup.isOpen()){map.closePopup();return;}
+    if(helpSheet.classList.contains('open')){closeHelp();return;}
     if(sheet.classList.contains('open')){closeSheet();return;}
     if(isSearching){
       if(currentAbort){currentAbort.abort();currentAbort=null;}
