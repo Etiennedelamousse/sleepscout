@@ -179,9 +179,9 @@
   .modal-btn{width:100%;padding:11px;border-radius:10px;border:none;cursor:pointer;background:var(--accent);color:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:0.82rem;transition:all 0.15s;}
   .modal-btn:hover{background:#14803a;box-shadow:var(--shadow-md);}
 
-  .btn-fullscreen{position:absolute;top:12px;right:12px;z-index:600;width:36px;height:36px;border-radius:9px;background:var(--surface);border:1.5px solid var(--border);box-shadow:var(--shadow-md);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all 0.15s;}
+  .btn-fullscreen{position:absolute;top:12px;right:12px;z-index:600;width:50px;height:50px;border-radius:9px;background:var(--surface);border:1.5px solid var(--border);box-shadow:var(--shadow-md);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all 0.15s;}
   .btn-fullscreen:hover{background:var(--surface2);}
-  .btn-fullscreen svg{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none;}
+  .btn-fullscreen svg{width:20px;height:20px;stroke:currentColor;stroke-width:2;fill:none;}
   body.is-fullscreen header,body.is-fullscreen .controls,body.is-fullscreen .status-bar-outer{display:none!important;}
   body.is-fullscreen .app{height:100vh!important;}
   body.is-fullscreen .content{grid-template-rows:1fr;}
@@ -257,7 +257,7 @@
   <div class="content" style="position:relative;">
     <div id="map"></div>
     <div class="pin-hint">📌 Klick / Touch auf Karte = Suche starten</div>
-    <button class="btn-fullscreen" id="helpBtn" title="Anleitung" style="top:auto;bottom:12px;">
+    <button class="btn-fullscreen" id="helpBtn" title="Anleitung" style="top:auto;bottom:32px;">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-width="2.5" stroke-linecap="round"/></svg>
     </button>
     <button class="btn-fullscreen" id="fullscreenBtn" title="Vollbild">
